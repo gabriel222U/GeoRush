@@ -4,6 +4,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
 import Classic from "./Classic";
+import Chrono from "./Chrono";
 
 const locations = {
   Monde: [
@@ -302,6 +303,7 @@ function App() {
         continent={continent}
         onExit={() => setMode(null)}
       />
+      {mode === "chrono" &&   <ChronoonBack={() => setMode(null)} />}
     );
   }
 if (screen === "classic") {
