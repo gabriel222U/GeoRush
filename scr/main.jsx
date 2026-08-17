@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
+import Classic from "./Classic";
 
 const locations = {
   Monde: [
@@ -293,6 +294,7 @@ function App() {
   const [mode, setMode] = useState(null);
   const [continent, setContinent] =
     useState("Monde");
+  const [screen, setScreen] =      useState("home");
 
   if (mode === "geoguess") {
     return (
@@ -302,6 +304,9 @@ function App() {
       />
     );
   }
+if (screen === "classic") {
+  return <Classic onBack={() => setScreen("home")} />;
+}
 
   return (
     <div className="app">
