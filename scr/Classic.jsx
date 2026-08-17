@@ -132,7 +132,8 @@ export default function Classic({ onBack }) {
         />
       </div>
 
-      <div className="question-card">
+      <div className="question-card"
+      onClick={() => setScreen("classic")}>
         <div className="question-number">
           QUESTION {question + 1}
         </div>
