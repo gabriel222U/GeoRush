@@ -269,3 +269,149 @@ h3 {
     max-width: 90%;
   }
 }
+.game-page {
+  min-height: 100vh;
+  padding: 30px 20px 100px;
+  background: #090b0f;
+  color: white;
+  box-sizing: border-box;
+}
+
+.back-button {
+  background: transparent;
+  border: 0;
+  color: #aaa;
+  font-size: 18px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 0 12px;
+  font-size: 16px;
+  letter-spacing: 2px;
+}
+
+.game-header strong {
+  color: #00e676;
+}
+
+.progress {
+  width: 100%;
+  height: 7px;
+  background: #24272d;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-bottom: 35px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #00e676;
+  transition: width 0.3s;
+}
+
+.question-card {
+  background: #15171c;
+  border: 1px solid #292c33;
+  border-radius: 25px;
+  padding: 25px;
+}
+
+.question-number {
+  color: #00e676;
+  font-weight: bold;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.question-card h1 {
+  font-size: 27px;
+  line-height: 1.25;
+  margin: 20px 0 30px;
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.answer {
+  width: 100%;
+  padding: 18px;
+  border-radius: 15px;
+  border: 2px solid #292c33;
+  background: #1b1d23;
+  color: white;
+  font-size: 17px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.answer:active {
+  transform: scale(0.98);
+}
+
+.answer.correct {
+  border-color: #00e676;
+  background: #063b25;
+}
+
+.answer.wrong {
+  border-color: #ff3d57;
+  background: #40151d;
+}
+
+.classic-score {
+  text-align: center;
+  margin-top: 25px;
+  color: #999;
+}
+
+.classic-score strong {
+  color: #00e676;
+}
+
+.game-result {
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.result-icon {
+  font-size: 70px;
+}
+
+.game-result h1 {
+  font-size: 32px;
+}
+
+.result-score {
+  font-size: 70px;
+  font-weight: 900;
+  color: #00e676;
+}
+
+.game-result p {
+  color: #888;
+  margin-top: -10px;
+}
+
+.main-button {
+  margin-top: 30px;
+  padding: 16px 30px;
+  border: 0;
+  border-radius: 30px;
+  background: #00e676;
+  color: #001b0c;
+  font-size: 17px;
+  font-weight: bold;
+}
