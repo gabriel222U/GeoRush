@@ -1,17 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  useMapEvents,
-  useMap
-} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
-
-const roundsTotal = 5;
 
 const locations = {
   Monde: [
@@ -68,67 +59,122 @@ const locations = {
   ]
 };
 
-const markerIcon = new L.Icon({
-  iconUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
+function randomLocation(continent) {
+  const list = locations[continent] || locations.Monde;
+  return list[Math.floor(Math.random() * list.length)];
+}
 
 function distanceKm(a, b) {
   const R = 6371;
 
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
+  const lat1 = a.lat * Math.PI / 180;
+  const lat2 = b.lat * Math.PI / 180;
 
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
 
   const x =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1) *
-      Math.cos(lat2) *
-      Math.sin(dLng / 2) ** 2;
+    Math.cos(lat2) *
+    Math.sin(dLng / 2) ** 2;
 
   return 2 * R * Math.asin(Math.sqrt(x));
 }
 
-function GuessMarker({ onGuess }) {
-  useMapEvents({
-    click(e) {
-      onGuess({
-        lat: e.latlng.lat,
-        lng: e.latlng.lng
+function MapGame({ target, guess, setGuess, result }) {
+  const mapRef = useRef(null);
+  const mapElementRef = useRef(null);
+  const guessMarkerRef = useRef(null);
+  const targetMarkerRef = useRef(null);
+
+  useEffect(() => {
+    if (!mapElementRef.current || mapRef.current) return;
+
+    const map = L.map(mapElementRef.current, {
+      minZoom: 2,
+      maxZoom: 18,
+      zoomControl: true
+    }).setView([20, 0], 2);
+
+    L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }
+    ).addTo(map);
+
+    map.on("click", (event) => {
+      setGuess({
+        lat: event.latlng.lat,
+        lng: event.latlng.lng
+      });
+    });
+
+    mapRef.current = map;
+
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+  }, [setGuess]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !guess) return;
+
+    if (guessMarkerRef.current) {
+      guessMarkerRef.current.remove();
+    }
+
+    guessMarkerRef.current = L.marker([
+      guess.lat,
+      guess.lng
+    ]).addTo(map);
+  }, [guess]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !result) return;
+
+    if (targetMarkerRef.current) {
+      targetMarkerRef.current.remove();
+    }
+
+    targetMarkerRef.current = L.marker([
+      target.lat,
+      target.lng
+    ]).addTo(map);
+
+    if (guess) {
+      const bounds = L.latLngBounds([
+        [guess.lat, guess.lng],
+        [target.lat, target.lng]
+      ]);
+
+      map.fitBounds(bounds, {
+        padding: [50, 50]
       });
     }
-  });
+  }, [result, target, guess]);
 
-  return null;
-}
-
-function FitBounds({ target, guess }) {
-  const map = useMap();
-
-  if (target && guess) {
-    const bounds = L.latLngBounds([
-      [target.lat, target.lng],
-      [guess.lat, guess.lng]
-    ]);
-
-    map.fitBounds(bounds, {
-      padding: [50, 50]
-    });
-  }
-
-  return null;
+  return (
+    <div
+      ref={mapElementRef}
+      className="game-map"
+    />
+  );
 }
 
 function GeoGuess({ continent, onExit }) {
   const [round, setRound] = useState(1);
-  const [target, setTarget] = useState(() =>
-    getRandomLocation(continent)
+  const [target, setTarget] = useState(
+    () => randomLocation(continent)
   );
 
   const [guess, setGuess] = useState(null);
@@ -136,13 +182,15 @@ function GeoGuess({ continent, onExit }) {
   const [totalScore, setTotalScore] = useState(0);
 
   function validate() {
-    if (!guess || !target) return;
+    if (!guess) return;
 
     const distance = distanceKm(target, guess);
 
     const points = Math.max(
       0,
-      Math.round(5000 * Math.exp(-distance / 2000))
+      Math.round(
+        5000 * Math.exp(-distance / 2000)
+      )
     );
 
     setTotalScore((old) => old + points);
@@ -154,9 +202,9 @@ function GeoGuess({ continent, onExit }) {
   }
 
   function nextRound() {
-    if (round >= roundsTotal) {
+    if (round >= 5) {
       alert(
-        `Partie terminée !\n\nScore : ${totalScore} points`
+        `Partie terminée !\n\nScore final : ${totalScore} points`
       );
 
       onExit();
@@ -164,69 +212,47 @@ function GeoGuess({ continent, onExit }) {
     }
 
     setRound((old) => old + 1);
-    setTarget(getRandomLocation(continent));
+    setTarget(randomLocation(continent));
     setGuess(null);
     setResult(null);
   }
 
   return (
     <div className="game">
+
       <div className="game-header">
         <button onClick={onExit}>←</button>
 
         <strong>GEORUSH</strong>
 
         <span>
-          {round}/{roundsTotal}
+          {round}/5
         </span>
 
-        <span>{totalScore} pts</span>
+        <span>
+          {totalScore} pts
+        </span>
       </div>
 
       <div className="map-container">
-        <MapContainer
-          center={[20, 0]}
-          zoom={2}
-          minZoom={2}
-          maxZoom={18}
-          scrollWheelZoom={true}
-          className="game-map"
-        >
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
 
-          <GuessMarker onGuess={setGuess} />
+        <MapGame
+          target={target}
+          guess={guess}
+          setGuess={setGuess}
+          result={result}
+        />
 
-          {guess && (
-            <Marker
-              position={[guess.lat, guess.lng]}
-              icon={markerIcon}
-            />
-          )}
+        {!result && (
+          <div className="map-message">
+            📍 Touche la carte pour placer ton guess
+          </div>
+        )}
 
-          {result && (
-            <>
-              <Marker
-                position={[target.lat, target.lng]}
-                icon={markerIcon}
-              />
-
-              <FitBounds
-                target={target}
-                guess={guess}
-              />
-            </>
-          )}
-        </MapContainer>
-
-        <div className="map-message">
-          📍 Clique sur la carte pour placer ton guess
-        </div>
       </div>
 
       {!result ? (
+
         <button
           className="validate-button"
           disabled={!guess}
@@ -234,10 +260,15 @@ function GeoGuess({ continent, onExit }) {
         >
           🎯 VALIDER
         </button>
+
       ) : (
+
         <div className="result-panel">
+
           <div>
-            <strong>{result.points} points</strong>
+            <strong>
+              +{result.points} points
+            </strong>
 
             <span>
               📏 {result.distance.toFixed(1)} km
@@ -245,28 +276,21 @@ function GeoGuess({ continent, onExit }) {
           </div>
 
           <button onClick={nextRound}>
-            {round < roundsTotal
+            {round < 5
               ? "MANCHE SUIVANTE →"
               : "TERMINER"}
           </button>
+
         </div>
+
       )}
+
     </div>
   );
 }
 
-function getRandomLocation(continent) {
-  const list =
-    locations[continent] || locations.Monde;
-
-  return list[
-    Math.floor(Math.random() * list.length)
-  ];
-}
-
 function App() {
   const [mode, setMode] = useState(null);
-
   const [continent, setContinent] =
     useState("Monde");
 
@@ -281,7 +305,9 @@ function App() {
 
   return (
     <div className="app">
+
       <div className="home">
+
         <div className="hello">
           Salut
         </div>
@@ -289,22 +315,28 @@ function App() {
         <h1>Relax</h1>
 
         <div className="hero">
+
           <span>🌍</span>
 
           <div>
             <small>GEORUSH</small>
-            <h2>Devine le monde</h2>
+
+            <h2>
+              Devine le monde
+            </h2>
 
             <p>
-              Place ton marqueur le plus près
-              possible du lieu mystère.
+              Place ton marqueur le plus
+              près possible du lieu mystère.
             </p>
           </div>
+
         </div>
 
         <h3>Continent</h3>
 
         <div className="chips">
+
           {Object.keys(locations).map(
             (name) => (
               <button
@@ -322,6 +354,7 @@ function App() {
               </button>
             )
           )}
+
         </div>
 
         <h3>Modes solo</h3>
@@ -332,21 +365,31 @@ function App() {
             setMode("geoguess")
           }
         >
+
           <div className="mode-icon">
             🌍
           </div>
 
           <div>
-            <h2>GeoGuess</h2>
+
+            <h2>
+              GeoGuess
+            </h2>
 
             <p>
               5 manches • 5000 points
             </p>
+
           </div>
 
-          <span>→</span>
+          <span>
+            →
+          </span>
+
         </button>
+
       </div>
+
     </div>
   );
 }
