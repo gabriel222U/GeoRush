@@ -1,5 +1,5 @@
 {
-  "name": "geoguess-app",
+  "name": "georush",
   "private": true,
   "version": "1.0.0",
   "type": "module",
@@ -9,10 +9,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@googlemaps/js-api-loader": "^1.16.8",
+    "leaflet": "^1.9.4",
     "lucide-react": "^0.468.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-leaflet": "^5.0.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",
