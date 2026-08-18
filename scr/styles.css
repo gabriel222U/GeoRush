@@ -415,3 +415,155 @@ h3 {
   font-size: 17px;
   font-weight: bold;
 }
+.geoguess {
+  min-height: 100vh;
+  background: #080a0f;
+  color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+.geoguess-header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 15px;
+  background: #11141a;
+  border-bottom: 1px solid #292d35;
+  z-index: 10;
+}
+
+.geoguess-header strong {
+  color: #00e676;
+  letter-spacing: 2px;
+}
+
+.exit-button {
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 25px;
+}
+
+.street-container {
+  position: relative;
+  width: 100%;
+  height: 58vh;
+  min-height: 350px;
+}
+
+.street-view {
+  width: 100%;
+  height: 100%;
+}
+
+.street-overlay {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.street-overlay span {
+  background: rgba(0, 0, 0, 0.75);
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+
+.open-map-button,
+.validate-button,
+.next-button {
+  margin: 12px;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.open-map-button {
+  background: #20242c;
+  color: white;
+}
+
+.validate-button {
+  background: #00e676;
+  color: #001b0c;
+}
+
+.validate-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.guess-map-wrapper {
+  position: fixed;
+  left: 10px;
+  right: 10px;
+  bottom: 75px;
+  height: 45vh;
+  z-index: 50;
+  background: #111;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.guess-map {
+  width: 100%;
+  height: 100%;
+}
+
+.map-help {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.75);
+  text-align: center;
+  pointer-events: none;
+}
+
+.geo-result {
+  padding: 20px;
+  text-align: center;
+}
+
+.geo-result-score {
+  font-size: 48px;
+  font-weight: 900;
+  color: #00e676;
+}
+
+.geo-result-distance {
+  margin: 10px 0 20px;
+  color: #aaa;
+}
+
+.next-button {
+  width: calc(100% - 24px);
+  background: #00e676;
+  color: #001b0c;
+}
+
+@media (min-width: 800px) {
+  .street-container {
+    height: 65vh;
+  }
+
+  .guess-map-wrapper {
+    width: 450px;
+    left: auto;
+    right: 20px;
+    bottom: 20px;
+  }
+}
