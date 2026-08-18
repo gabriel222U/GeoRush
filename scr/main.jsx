@@ -6,6 +6,7 @@ import "./styles.css";
 
 import Classic from "./Classic";
 import Chrono from "./Chrono";
+import GeoGuess from "./GeoGuess";
 
 const locations = {
   Monde: [
