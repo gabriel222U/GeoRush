@@ -569,14 +569,12 @@ function App() {
   }
 
   if (mode === "classic") {
-
-    return (
-      <Classic
-        onBack={() =>
-          setMode(null)
-        }
-      />
-    );
+   return (
+    <Classic
+      continent={continent}
+      onBack={() => setMode(null)}
+    />
+   );
   }
 
   if (mode === "chrono") {
