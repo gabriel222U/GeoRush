@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "./styles.css";
+
 import Classic from "./Classic";
 import Chrono from "./Chrono";
 
@@ -63,7 +64,10 @@ const locations = {
 
 function randomLocation(continent) {
   const list = locations[continent] || locations.Monde;
-  return list[Math.floor(Math.random() * list.length)];
+
+  return list[
+    Math.floor(Math.random() * list.length)
+  ];
 }
 
 function distanceKm(a, b) {
@@ -72,38 +76,62 @@ function distanceKm(a, b) {
   const lat1 = a.lat * Math.PI / 180;
   const lat2 = b.lat * Math.PI / 180;
 
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const dLat =
+    (b.lat - a.lat) * Math.PI / 180;
+
+  const dLng =
+    (b.lng - a.lng) * Math.PI / 180;
 
   const x =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(lat1) *
-    Math.cos(lat2) *
-    Math.sin(dLng / 2) ** 2;
+      Math.cos(lat2) *
+      Math.sin(dLng / 2) ** 2;
 
-  return 2 * R * Math.asin(Math.sqrt(x));
+  return (
+    2 *
+    R *
+    Math.asin(Math.sqrt(x))
+  );
 }
 
-function MapGame({ target, guess, setGuess, result }) {
+/* =========================
+   CARTE GEOGUESS
+========================= */
+
+function MapGame({
+  target,
+  guess,
+  setGuess,
+  result
+}) {
   const mapRef = useRef(null);
-  const mapElementRef = useRef(null);
+  const elementRef = useRef(null);
   const guessMarkerRef = useRef(null);
   const targetMarkerRef = useRef(null);
 
   useEffect(() => {
-    if (!mapElementRef.current || mapRef.current) return;
+    if (
+      !elementRef.current ||
+      mapRef.current
+    ) {
+      return;
+    }
 
-    const map = L.map(mapElementRef.current, {
-      minZoom: 2,
-      maxZoom: 18,
-      zoomControl: true
-    }).setView([20, 0], 2);
+    const map = L.map(
+      elementRef.current,
+      {
+        minZoom: 2,
+        maxZoom: 18,
+        zoomControl: true
+      }
+    ).setView([20, 0], 2);
 
     L.tileLayer(
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
         attribution:
-          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          '&copy; OpenStreetMap contributors'
       }
     ).addTo(map);
 
@@ -118,7 +146,7 @@ function MapGame({ target, guess, setGuess, result }) {
 
     setTimeout(() => {
       map.invalidateSize();
-    }, 100);
+    }, 200);
 
     return () => {
       map.remove();
@@ -128,7 +156,10 @@ function MapGame({ target, guess, setGuess, result }) {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !guess) return;
+
+    if (!map || !guess) {
+      return;
+    }
 
     if (guessMarkerRef.current) {
       guessMarkerRef.current.remove();
@@ -142,7 +173,10 @@ function MapGame({ target, guess, setGuess, result }) {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !result) return;
+
+    if (!map || !result) {
+      return;
+    }
 
     if (targetMarkerRef.current) {
       targetMarkerRef.current.remove();
@@ -159,43 +193,66 @@ function MapGame({ target, guess, setGuess, result }) {
         [target.lat, target.lng]
       ]);
 
-      map.fitBounds(bounds, {
-        padding: [50, 50]
-      });
+      map.fitBounds(
+        bounds,
+        {
+          padding: [50, 50]
+        }
+      );
     }
   }, [result, target, guess]);
 
   return (
     <div
-      ref={mapElementRef}
+      ref={elementRef}
       className="game-map"
     />
   );
 }
 
-function GeoGuess({ continent, onExit }) {
-  const [round, setRound] = useState(1);
-  const [target, setTarget] = useState(
-    () => randomLocation(continent)
-  );
+/* =========================
+   GEOGUESS
+========================= */
 
-  const [guess, setGuess] = useState(null);
-  const [result, setResult] = useState(null);
-  const [totalScore, setTotalScore] = useState(0);
+function GeoGuess({
+  continent,
+  onExit
+}) {
+  const [round, setRound] = useState(1);
+
+  const [target, setTarget] =
+    useState(() =>
+      randomLocation(continent)
+    );
+
+  const [guess, setGuess] =
+    useState(null);
+
+  const [result, setResult] =
+    useState(null);
+
+  const [totalScore, setTotalScore] =
+    useState(0);
 
   function validate() {
-    if (!guess) return;
+    if (!guess) {
+      return;
+    }
 
-    const distance = distanceKm(target, guess);
+    const distance =
+      distanceKm(target, guess);
 
     const points = Math.max(
       0,
       Math.round(
-        5000 * Math.exp(-distance / 2000)
+        5000 *
+        Math.exp(-distance / 2000)
       )
     );
 
-    setTotalScore((old) => old + points);
+    setTotalScore(
+      (old) => old + points
+    );
 
     setResult({
       distance,
@@ -213,8 +270,14 @@ function GeoGuess({ continent, onExit }) {
       return;
     }
 
-    setRound((old) => old + 1);
-    setTarget(randomLocation(continent));
+    setRound(
+      (old) => old + 1
+    );
+
+    setTarget(
+      randomLocation(continent)
+    );
+
     setGuess(null);
     setResult(null);
   }
@@ -223,9 +286,14 @@ function GeoGuess({ continent, onExit }) {
     <div className="game">
 
       <div className="game-header">
-        <button onClick={onExit}>←</button>
 
-        <strong>GEORUSH</strong>
+        <button onClick={onExit}>
+          ←
+        </button>
+
+        <strong>
+          GEORUSH
+        </strong>
 
         <span>
           {round}/5
@@ -234,6 +302,7 @@ function GeoGuess({ continent, onExit }) {
         <span>
           {totalScore} pts
         </span>
+
       </div>
 
       <div className="map-container">
@@ -268,16 +337,22 @@ function GeoGuess({ continent, onExit }) {
         <div className="result-panel">
 
           <div>
+
             <strong>
               +{result.points} points
             </strong>
 
             <span>
-              📏 {result.distance.toFixed(1)} km
+              📏{" "}
+              {result.distance.toFixed(1)}
+              {" "}km
             </span>
+
           </div>
 
-          <button onClick={nextRound}>
+          <button
+            onClick={nextRound}
+          >
             {round < 5
               ? "MANCHE SUIVANTE →"
               : "TERMINER"}
@@ -291,25 +366,15 @@ function GeoGuess({ continent, onExit }) {
   );
 }
 
-function App() {
-  const [mode, setMode] = useState(null);
-  const [continent, setContinent] =
-    useState("Monde");
-  const [screen, setScreen] =      useState("home");
+/* =========================
+   ACCUEIL
+========================= */
 
-  if (mode === "geoguess") {
-    return (
-      <GeoGuess
-        continent={continent}
-        onExit={() => setMode(null)}
-      />
-      {mode === "chrono" &&   <ChronoonBack={() => setMode(null)} />}
-    );
-  }
-if (screen === "classic") {
-  return <Classic onBack={() => setScreen("home")} />;
-}
-
+function Home({
+  continent,
+  setContinent,
+  setMode
+}) {
   return (
     <div className="app">
 
@@ -319,14 +384,21 @@ if (screen === "classic") {
           Salut
         </div>
 
-        <h1>Relax</h1>
+        <h1>
+          Relax
+        </h1>
 
         <div className="hero">
 
-          <span>🌍</span>
+          <span>
+            🌍
+          </span>
 
           <div>
-            <small>GEORUSH</small>
+
+            <small>
+              GEORUSH
+            </small>
 
             <h2>
               Devine le monde
@@ -336,16 +408,20 @@ if (screen === "classic") {
               Place ton marqueur le plus
               près possible du lieu mystère.
             </p>
+
           </div>
 
         </div>
 
-        <h3>Continent</h3>
+        <h3>
+          Continent
+        </h3>
 
         <div className="chips">
 
           {Object.keys(locations).map(
             (name) => (
+
               <button
                 key={name}
                 className={
@@ -359,12 +435,17 @@ if (screen === "classic") {
               >
                 {name}
               </button>
+
             )
           )}
 
         </div>
 
-        <h3>Modes solo</h3>
+        <h3>
+          Modes solo
+        </h3>
+
+        {/* GEOGUESS */}
 
         <button
           className="mode-card"
@@ -395,12 +476,135 @@ if (screen === "classic") {
 
         </button>
 
+        {/* CLASSIC */}
+
+        <button
+          className="mode-card"
+          onClick={() =>
+            setMode("classic")
+          }
+        >
+
+          <div className="mode-icon">
+            🧠
+          </div>
+
+          <div>
+
+            <h2>
+              Classic
+            </h2>
+
+            <p>
+              10 questions • 1000 points
+            </p>
+
+          </div>
+
+          <span>
+            →
+          </span>
+
+        </button>
+
+        {/* CHRONO */}
+
+        <button
+          className="mode-card"
+          onClick={() =>
+            setMode("chrono")
+          }
+        >
+
+          <div className="mode-icon">
+            ⏱️
+          </div>
+
+          <div>
+
+            <h2>
+              Chrono
+            </h2>
+
+            <p>
+              15 secondes par question
+            </p>
+
+          </div>
+
+          <span>
+            →
+          </span>
+
+        </button>
+
       </div>
 
     </div>
   );
 }
 
+/* =========================
+   APP
+========================= */
+
+function App() {
+
+  const [mode, setMode] =
+    useState(null);
+
+  const [continent, setContinent] =
+    useState("Monde");
+
+  if (mode === "geoguess") {
+
+    return (
+      <GeoGuess
+        continent={continent}
+        onExit={() =>
+          setMode(null)
+        }
+      />
+    );
+  }
+
+  if (mode === "classic") {
+
+    return (
+      <Classic
+        onBack={() =>
+          setMode(null)
+        }
+      />
+    );
+  }
+
+  if (mode === "chrono") {
+
+    return (
+      <Chrono
+        onBack={() =>
+          setMode(null)
+        }
+      />
+    );
+  }
+
+  return (
+    <Home
+      continent={continent}
+      setContinent={setContinent}
+      setMode={setMode}
+    />
+  );
+}
+
+/* =========================
+   LANCEMENT
+========================= */
+
 createRoot(
   document.getElementById("root")
-).render(<App />);
+).render(
+  <App />
+);
